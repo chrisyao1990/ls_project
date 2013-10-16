@@ -1,7 +1,7 @@
 /*
  *   CS631 Advanced Programming in the UNIX Environment
  *               Project 1, ls implementation
- *           ls [ −AacdFfhiklnqRrSstuw1] [file ...]
+ *           ls [-AacdFfhiklnqRrSstuw1] [file ...]
  *                  Author: Kun Yao
  *                  Date:Sep,20,2013
  */
@@ -9,10 +9,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <fts.h>
+#include <time.h>
 #include <unistd.h>
 
 extern int A_flag; 
@@ -37,28 +38,38 @@ extern int w_flag;
 extern int one_flag;
 extern int C_flag;
 extern int x_flag;
+extern int to_terminal_flag;
+extern int termwidth;
+extern float blktimes;
 
 struct Buf{
-    int num;
-    int total;
-    int bcfile;
-    int maxlen;
-    int usrlen;
-    int grplen;
-    int linklen;
-    int sizelen;
-    int inodelen;
-    int blocklen;
-    FTSENT *list;
+    int bf_inodwidth;
+    int bf_fnamelen;
+    int bf_blklen;
+    int bf_totalblks;
+    int bf_linklen;
+    int bf_uidlen;
+    int bf_gidlen;
+    int bf_sizelen;
+    int bf_total;
+    FTSENT *bf_list;
 }b;
 
-struct 		   Node;
-typedef struct Node      *PtrToNode;
-
-int simple_ls(int argc, char *argv[]);
 int do_ls(int argc, char **argv);
-PtrToNode creat_list();
-void insert(PtrToNode List, struct stat *sb, char *filename);
-void printlist(PtrToNode List);
-void display_dir(PtrToNode Dir);
-void display_file(PtrToNode File);
+int cmporder(const FTSENT **a, const FTSENT **b);
+int cmpname(const FTSENT *a, const FTSENT *b);
+int cmptimestch(const FTSENT *a, const FTSENT *b);
+int cmpsize(const FTSENT *a, const FTSENT *b);
+int cmptimemdf(const FTSENT *a, const FTSENT *b);
+int cmptimelacc(const FTSENT *a, const FTSENT *b);
+void do_print(FTSENT *fp, FTSENT *list);
+
+void onedisplay(void);
+void orderdisplay(void);
+void longdisplay(void);
+void filedisplay(FTSENT *p);
+int  digitslength(long int d);
+
+
+
+
